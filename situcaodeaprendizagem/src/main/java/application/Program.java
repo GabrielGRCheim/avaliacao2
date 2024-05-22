@@ -20,6 +20,10 @@ package application;
 /**
  * 
  * @author Gabriel Gomes Rodrigues Cheim <gabrielgrcheim2@gmail.com>
+ * @author Josias Junior 
+ * @author Wésia Kaliany
+ * @author Rodrigo Ramos
+ * @author Bruna Luiza
  * @date 22/05/2024
  * @brief Class Program
  */
