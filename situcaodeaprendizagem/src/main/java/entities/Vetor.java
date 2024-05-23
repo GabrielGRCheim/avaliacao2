@@ -14,11 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package entities;
 
 /**
- * 
+ *
  * @author Gabriel Gomes Rodrigues Cheim <gabrielgrcheim2@gmail.com>
  * @date 22/05/2024
  * @brief Class Vetor
@@ -41,7 +40,7 @@ public class Vetor {
     public static Vetor lerVetor(String input) throws IllegalArgumentException {
         // Remove parênteses e espaços, e divide a string pelos caracteres ',' para obter os valores
         String[] valores = input.replaceAll("[()\\s]", "").split(",");
-        
+
         // Verifica se a quantidade de valores está correta (2 ou 3)
         if (valores.length < 2 || valores.length > 3) {
             throw new IllegalArgumentException("Formato de vetor inválido. Use (x,y) ou (x,y,z).");
@@ -109,11 +108,15 @@ public class Vetor {
         double diferencaZ = vetor2.z - vetor1.z; // Calcula a diferença das componentes z
         return Math.sqrt(diferencaX * diferencaX + diferencaY * diferencaY + diferencaZ * diferencaZ); // Calcula a distância euclidiana
     }
-    
+
     public Vetor calcularProdutoVetorial(Vetor outroVetor) {
-        double x = this.y * outroVetor.z - this.z * outroVetor.y;
-        double y = this.z * outroVetor.x - this.x * outroVetor.z;
-        double z = this.x * outroVetor.y - this.y * outroVetor.x;
-        return new Vetor(x,y,z);
+        // Verifica se ambos os vetores são tridimensionais
+        if (this.z == 0 || outroVetor.z == 0) {
+            throw new IllegalArgumentException("Ambos os vetores devem ser tridimensionais para calcular o produto vetorial.");
+        }
+        double x = this.y * outroVetor.z - this.z * outroVetor.y; // Calcula a componente x do vetor resultante
+        double y = this.z * outroVetor.x - this.x * outroVetor.z;// Calcula a componente y do vetor resultante
+        double z = this.x * outroVetor.y - this.y * outroVetor.x;// Calcula a componente z do vetor resultante
+        return new Vetor(x, y, z);// Retorna um novo vetor com as componentes calculadas
     }
 }
