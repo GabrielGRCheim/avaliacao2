@@ -40,7 +40,8 @@ public class Program {
         do {
             boolean entradaValida = false;
             // Exibe o menu de opções
-            System.out.println("Selecione uma opção a seguir: \n"
+            System.out.println("- - - - - - - - - - - - - - - - - - - - - - \n"
+                    + "Selecione uma opção a seguir: \n"
                     + "1- Inserir Vetor \n"
                     + "2- Calcular Magnitude \n"
                     + "3- Calcular Produto Escalar \n"
@@ -48,7 +49,8 @@ public class Program {
                     + "5- Projetar Vetor \n"
                     + "6- Visualizar Ortogonalidade \n"
                     + "7 - Calcula o Produto Vetorial \n"
-                    + "0- Sair");
+                    + "0- Sair \n"
+                    + "- - - - - - - - - - - - - - - - - - - - - - ");
 
             // Loop para garantir que a entrada seja um número inteiro válido
             while (!entradaValida) {
@@ -91,7 +93,7 @@ public class Program {
                         if (!listaDeVetores.isEmpty()) {
                             System.out.println("Selecione um vetor:");
                             exibirVetores(listaDeVetores); // Exibe a lista de vetores
-                            int indexMagnitude = sc.nextInt();
+                            int indexMagnitude = verificaValor(listaDeVetores);
                             Vetor vetorMagnitude = listaDeVetores.get(indexMagnitude - 1);
                             System.out.println("Magnitude do vetor selecionado: " + vetorMagnitude.calcularMagnitude());
                         } else {
@@ -252,8 +254,13 @@ public class Program {
                 valor = sc.nextInt();
                 if ((valor > 0) && (valor < listaDeVetores.size() + 1)) {
                     entradaValida = true;
-                } else {
-                    System.out.println("Entrada inválida. Por favor, digite um número que esteja contido na lista!.");
+                } else if(listaDeVetores.isEmpty()){
+                    System.out.println("A lista de vetores esta vazia!");
+                    System.out.println("Digite pelo menos um valor!");
+                    entradaValida = true;
+                }
+                else {
+                    System.out.println("Entrada inválida. Por favor, digite um valor que esteja contido na lista!.");
                     System.out.println("Tente novamente:");
                 }
             } else {
