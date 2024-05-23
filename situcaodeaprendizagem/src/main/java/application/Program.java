@@ -211,7 +211,7 @@ public class Program {
 
                         try {
                             Vetor produtoVetorial = vetor1.calcularProdutoVetorial(vetor2);
-                            System.out.println("Produto vetorial entre os vetores " + vetor1 + " e " + vetor2 + " é: " + produtoVetorial);
+                            System.out.println("Produto vetorial é: "  + produtoVetorial);
                         } catch (IllegalArgumentException e) {
                             System.out.println("Erro ao calcular o produto vetorial: " + e.getMessage());
                         }

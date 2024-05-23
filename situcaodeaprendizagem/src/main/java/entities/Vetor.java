@@ -114,6 +114,6 @@ public class Vetor {
         double x = this.y * outroVetor.z - this.z * outroVetor.y;
         double y = this.z * outroVetor.x - this.x * outroVetor.z;
         double z = this.x * outroVetor.y - this.y * outroVetor.x;
-        return new Vetor(x, y, z);
+        return new Vetor(x,y,z);
     }
 }
