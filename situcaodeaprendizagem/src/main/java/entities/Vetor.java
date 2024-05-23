@@ -109,4 +109,11 @@ public class Vetor {
         double diferencaZ = vetor2.z - vetor1.z; // Calcula a diferença das componentes z
         return Math.sqrt(diferencaX * diferencaX + diferencaY * diferencaY + diferencaZ * diferencaZ); // Calcula a distância euclidiana
     }
+    
+    public Vetor calcularProdutoVetorial(Vetor outroVetor) {
+        double x = this.y * outroVetor.z - this.z * outroVetor.y;
+        double y = this.z * outroVetor.x - this.x * outroVetor.z;
+        double z = this.x * outroVetor.y - this.y * outroVetor.x;
+        return new Vetor(x, y, z);
+    }
 }

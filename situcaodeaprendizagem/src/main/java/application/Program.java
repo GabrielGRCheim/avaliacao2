@@ -14,13 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package application;
 
 /**
- * 
+ *
  * @author Gabriel Gomes Rodrigues Cheim <gabrielgrcheim2@gmail.com>
- * @author Josias Junior 
+ * @author Josias Junior
  * @author Wésia Kaliany
  * @author Rodrigo Ramos
  * @author Bruna Luiza
@@ -48,6 +47,7 @@ public class Program {
                     + "4- Determinar Ângulo Entre Vetores \n"
                     + "5- Projetar Vetor \n"
                     + "6- Visualizar Ortogonalidade \n"
+                    + "7 - Calcula o Produto Vetorial \n"
                     + "0- Sair");
 
             // Loop para garantir que a entrada seja um número inteiro válido
@@ -193,6 +193,30 @@ public class Program {
                         }
                     } else {
                         System.out.println("Pelo menos dois vetores devem ser inseridos para verificar a ortogonalidade.");
+                    }
+                    break;
+                case 7:
+                    // Calcular o produto vetorial
+                    if (listaDeVetores.size() >= 2) {
+                        System.out.println("Escolha dois vetores:");
+                        exibirVetores(listaDeVetores); // Exibe a lista de vetores
+
+                        System.out.println("Digite o índice do primeiro vetor na lista:");
+                        int indexVetor1 = verificaValor(listaDeVetores);
+                        System.out.println("Digite o índice do segundo vetor na lista:");
+                        int indexVetor2 = verificaValor(listaDeVetores);
+
+                        Vetor vetor1 = listaDeVetores.get(indexVetor1 - 1);
+                        Vetor vetor2 = listaDeVetores.get(indexVetor2 - 1);
+
+                        try {
+                            Vetor produtoVetorial = vetor1.calcularProdutoVetorial(vetor2);
+                            System.out.println("Produto vetorial entre os vetores " + vetor1 + " e " + vetor2 + " é: " + produtoVetorial);
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Erro ao calcular o produto vetorial: " + e.getMessage());
+                        }
+                    } else {
+                        System.out.println("Pelo menos dois vetores devem ser inseridos para calcular o produto vetorial.");
                     }
                     break;
 
