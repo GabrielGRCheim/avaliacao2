@@ -28,8 +28,8 @@ import javafx.stage.Stage;
 
 public class LoginApp extends Application {
 
-    private static final String USUARIO_CORRETO = "IBGE550234";
-    private static final String SENHA_CORRETA = "IBGE1234";
+    private static final String USUARIO_CORRETO = "123";
+    private static final String SENHA_CORRETA = "123";
     private int tentativasRestantes = 3;
 
     private Geotec mainApp;

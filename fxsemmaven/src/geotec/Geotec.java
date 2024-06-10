@@ -23,6 +23,8 @@ package geotec;
 import entities.CSVUtils;
 import entities.Municipio;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
@@ -105,19 +107,40 @@ public class Geotec extends Application {
         txtBusca = new TextField();
         txtBusca.setPromptText("Digite o nome ou código IBGE do município");
 
+        txtBusca.textProperty().addListener(new ChangeListener<String>() {
+    @Override
+    public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+        // Defina os caracteres proibidos em uma expressão regular
+        String caracteresProibidos = "[#@!$%&*()¨;:<>|/?+_-]";
+        
+        // Verifique se o novo valor contém qualquer um dos caracteres proibidos
+        if (newValue.matches(".*" + caracteresProibidos + ".*")) {
+            txtBusca.setText(oldValue);
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Entrada Inválida");
+            alert.setHeaderText(null);
+            alert.setContentText("Caracteres proibidos: #, @, !, $, %, &, *, ( , ) , < , > , | , ? , = , + , - e _   não são permitidos.");
+            alert.showAndWait();
+        }
+    }
+});
+
         Button btnBuscar = new Button("Buscar");
         btnBuscar.setOnAction(e -> buscarMunicipio());
 
         Button btnAtualizarTabela = new Button("Atualizar");
-        btnAtualizarTabela.setOnAction(e -> carregarDados()); 
+        btnAtualizarTabela.setOnAction(e -> carregarDados()); // Chama o método carregarDados para atualizar a tabela
 
         Button btnAtualizar = new Button("Atualizar Registro");
         btnAtualizar.setOnAction(e -> abrirInterfaceAtualizacao(primaryStage));
 
+        Button btnDeletar = new Button("Deletar");
+        btnDeletar.setOnAction(e -> abrirInterfaceDelecao(primaryStage));
+
         HBox hBoxBusca = new HBox(txtBusca, btnBuscar);
         hBoxBusca.setSpacing(10);
 
-        VBox vbox = new VBox(btnCarregar, hBoxBusca, tableView, btnAtualizarTabela, btnAtualizar); 
+        VBox vbox = new VBox(btnCarregar, hBoxBusca, tableView, btnAtualizarTabela, btnAtualizar, btnDeletar); // Adiciona o botão Deletar na interface
         vbox.setSpacing(10);
 
         Scene scene = new Scene(vbox, 1000, 600);
@@ -150,6 +173,13 @@ public class Geotec extends Application {
         AtualizacaoRegistrosApp atualizacaoApp = new AtualizacaoRegistrosApp(municipios);
         atualizacaoApp.start(atualizacaoStage);
         atualizacaoStage.show();
+    }
+
+    private void abrirInterfaceDelecao(Stage primaryStage) {
+        Stage delecaoStage = new Stage();
+        DelecaoMunicipioApp delecaoApp = new DelecaoMunicipioApp(municipios);
+        delecaoApp.start(delecaoStage);
+        delecaoStage.show();
     }
 
     public static void main(String[] args) {

@@ -217,7 +217,7 @@ public class Municipio {
         return valorString;
     }
     
-    public static void removerMunicipio(List<Municipio> municipios, String nomeMunicipio) {
-        municipios.removeIf(municipio -> municipio.getNome().equals(nomeMunicipio));
+    public static void removerMunicipio(List<Municipio> municipios, Municipio municipioSelecionado) {
+        municipios.removeIf(municipio -> municipio.getNome().equals(municipioSelecionado.getNome()));
     }
 }

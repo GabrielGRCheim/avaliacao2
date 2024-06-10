@@ -138,7 +138,7 @@ public class AtualizacaoRegistrosApp extends Application {
 
         grid.getChildren().addAll(vbox);
 
-        Scene scene = new Scene(grid, 400, 500);
+        Scene scene = new Scene(grid, 400, 1000);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -159,30 +159,79 @@ public class AtualizacaoRegistrosApp extends Application {
         }
     }
 
-    private void atualizarRegistro(String populacao, String domicilios, String pibTotal, String idh,
-            String rendaMedia, String rendaNominal, String peaDia,
-            String idhEducacao, String idhLongevidade) {
-        if (municipioSelecionado != null) {
-            municipioSelecionado.setPopulacao(populacao);
-            municipioSelecionado.setDomicilios(domicilios);
-            municipioSelecionado.setPibTotal(pibTotal);
-            municipioSelecionado.setIdh(idh);
-            municipioSelecionado.setRendaMedia(rendaMedia);
-            municipioSelecionado.setRendaNominal(rendaNominal);
-            municipioSelecionado.setPeaDia(peaDia);
-            municipioSelecionado.setIdhEducacao(idhEducacao);
-            municipioSelecionado.setIdhLongevidade(idhLongevidade);
+   private List<String> validarCampos(String populacao, String domicilios, String pibTotal, String idh,
+                                   String rendaMedia, String rendaNominal, String peaDia,
+                                   String idhEducacao, String idhLongevidade) {
+    List<String> erros = new ArrayList<>();
 
-            // Registra a data da última atualização
-            LocalDateTime dataAtualizacao = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-            String dataFormatada = dataAtualizacao.format(formatter);
-            municipioSelecionado.setDataUltimaAtualizacao(dataFormatada);
+    // Verificar se campos obrigatórios estão vazios
+    if (populacao.isEmpty()) erros.add("O campo 'População' é obrigatório.");
+    if (domicilios.isEmpty()) erros.add("O campo 'Domicílios' é obrigatório.");
+    if (pibTotal.isEmpty()) erros.add("O campo 'PIB Total' é obrigatório.");
+    if (idh.isEmpty()) erros.add("O campo 'IDH' é obrigatório.");
+    if (rendaMedia.isEmpty()) erros.add("O campo 'Renda Média' é obrigatório.");
+    if (rendaNominal.isEmpty()) erros.add("O campo 'Renda Nominal' é obrigatório.");
+    if (peaDia.isEmpty()) erros.add("O campo 'PEA Dia' é obrigatório.");
+    if (idhEducacao.isEmpty()) erros.add("O campo 'IDH Educação' é obrigatório.");
+    if (idhLongevidade.isEmpty()) erros.add("O campo 'IDH Longevidade' é obrigatório.");
 
-            // Atualiza a exibição dos detalhes do município na interface
-            exibirDetalhesMunicipio();
-        }
+    // Verificar se campos numéricos contêm apenas números, pontos e vírgulas
+    if (!populacao.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
+        erros.add("O campo 'População' deve conter apenas números no formato 1.000,00.");
+    if (!domicilios.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
+        erros.add("O campo 'Domicílios' deve conter apenas números no formato 1.000,00.");
+    if (!pibTotal.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
+        erros.add("O campo 'PIB Total' deve conter apenas números no formato 1.000,00.");
+    if (!rendaMedia.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
+        erros.add("O campo 'Renda Média' deve conter apenas números no formato 1.000,00.");
+    if (!rendaNominal.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
+        erros.add("O campo 'Renda Nominal' deve conter apenas números no formato 1.000,00.");
+    if (!peaDia.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
+        erros.add("O campo 'PEA Dia' deve conter apenas números no formato 1.000,00.");
+    if (!idh.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
+        erros.add("O campo 'IDH' deve conter apenas números no formato 1.000,00.");
+    if (!idhEducacao.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
+        erros.add("O campo 'IDH Educação' deve conter apenas números no formato 1.000,00.");
+    if (!idhLongevidade.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
+        erros.add("O campo 'IDH Longevidade' deve conter apenas números no formato 1.000,00.");
+
+    return erros;
+}
+
+private void atualizarRegistro(String populacao, String domicilios, String pibTotal, String idh,
+                               String rendaMedia, String rendaNominal, String peaDia,
+                               String idhEducacao, String idhLongevidade) {
+    List<String> erros = validarCampos(populacao, domicilios, pibTotal, idh, rendaMedia, rendaNominal, peaDia, idhEducacao, idhLongevidade);
+    if (!erros.isEmpty()) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erro de Validação");
+        alert.setHeaderText("Por favor, corrija os seguintes erros:");
+        alert.setContentText(String.join("\n", erros));
+        alert.showAndWait();
+        return;
     }
+
+    if (municipioSelecionado != null) {
+        municipioSelecionado.setPopulacao(populacao);
+        municipioSelecionado.setDomicilios(domicilios);
+        municipioSelecionado.setPibTotal(pibTotal);
+        municipioSelecionado.setIdh(idh);
+        municipioSelecionado.setRendaMedia(rendaMedia);
+        municipioSelecionado.setRendaNominal(rendaNominal);
+        municipioSelecionado.setPeaDia(peaDia);
+        municipioSelecionado.setIdhEducacao(idhEducacao);
+        municipioSelecionado.setIdhLongevidade(idhLongevidade);
+
+        // Registra a data da última atualização
+        LocalDateTime dataAtualizacao = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String dataFormatada = dataAtualizacao.format(formatter);
+        municipioSelecionado.setDataUltimaAtualizacao(dataFormatada);
+
+        // Atualiza a exibição dos detalhes do município na interface
+        exibirDetalhesMunicipio();
+    }
+}
 
     public static void main(String[] args) {
         launch(args);
