@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package geotec;
+
 import entities.Municipio;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
@@ -29,7 +30,6 @@ import javafx.stage.Stage;
  *
  * @author Gabriel Gomes Rodrigues Cheim <gabrielgrcheim2@gmail.com>
  */
-
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -159,59 +159,192 @@ public class AtualizacaoRegistrosApp extends Application {
         }
     }
 
-   private List<String> validarCampos(String populacao, String domicilios, String pibTotal, String idh,
-                                   String rendaMedia, String rendaNominal, String peaDia,
-                                   String idhEducacao, String idhLongevidade) {
-    List<String> erros = new ArrayList<>();
+    private List<String> validarCampos(String populacao, String domicilios, String pibTotal, String idh,
+            String rendaMedia, String rendaNominal, String peaDia,
+            String idhEducacao, String idhLongevidade) {
+        List<String> erros = new ArrayList<>();
 
-    // Verificar se campos obrigatórios estão vazios
-    if (populacao.isEmpty()) erros.add("O campo 'População' é obrigatório.");
-    if (domicilios.isEmpty()) erros.add("O campo 'Domicílios' é obrigatório.");
-    if (pibTotal.isEmpty()) erros.add("O campo 'PIB Total' é obrigatório.");
-    if (idh.isEmpty()) erros.add("O campo 'IDH' é obrigatório.");
-    if (rendaMedia.isEmpty()) erros.add("O campo 'Renda Média' é obrigatório.");
-    if (rendaNominal.isEmpty()) erros.add("O campo 'Renda Nominal' é obrigatório.");
-    if (peaDia.isEmpty()) erros.add("O campo 'PEA Dia' é obrigatório.");
-    if (idhEducacao.isEmpty()) erros.add("O campo 'IDH Educação' é obrigatório.");
-    if (idhLongevidade.isEmpty()) erros.add("O campo 'IDH Longevidade' é obrigatório.");
+        // Verificar se campos obrigatórios estão vazios
+        if (populacao.isEmpty()) {
+            erros.add("O campo 'População' é obrigatório.");
+        } else {
+            try {
+                double populacaoDouble = Double.parseDouble(populacao.replace(".", "").replace(",", "."));
+                if (populacaoDouble <= 0 || populacaoDouble > 7_900_000_000L) {
+                    erros.add("O campo 'População' deve ser um número entre 1 e 7.900.000.000.");
+                }
+            } catch (NumberFormatException e) {
+                erros.add("O campo 'População' deve conter apenas números.");
+            }
+        }
+        if (domicilios.isEmpty()) {
+            erros.add("O campo 'Domicílios' é obrigatório.");
+        } else {
+            // Verificar se o número de domicílios é um número válido e está dentro do limite
+            try {
+                double domiciliosDouble = Double.parseDouble(domicilios.replace(".", "").replace(",", "."));
+                if (domiciliosDouble <= 0 || domiciliosDouble > 12000) {
+                    erros.add("O campo 'Domicílios' deve ser um número entre 1 e 12.000.");
+                }
+            } catch (NumberFormatException e) {
+                erros.add("O campo 'Domicílios' deve conter apenas números.");
+            }
 
-    // Verificar se campos numéricos contêm apenas números, pontos e vírgulas
-    if (!populacao.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
-        erros.add("O campo 'População' deve conter apenas números no formato 1.000,00.");
-    if (!domicilios.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
-        erros.add("O campo 'Domicílios' deve conter apenas números no formato 1.000,00.");
-    if (!pibTotal.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
-        erros.add("O campo 'PIB Total' deve conter apenas números no formato 1.000,00.");
-    if (!rendaMedia.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
-        erros.add("O campo 'Renda Média' deve conter apenas números no formato 1.000,00.");
-    if (!rendaNominal.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
-        erros.add("O campo 'Renda Nominal' deve conter apenas números no formato 1.000,00.");
-    if (!peaDia.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
-        erros.add("O campo 'PEA Dia' deve conter apenas números no formato 1.000,00.");
-    if (!idh.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
-        erros.add("O campo 'IDH' deve conter apenas números no formato 1.000,00.");
-    if (!idhEducacao.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
-        erros.add("O campo 'IDH Educação' deve conter apenas números no formato 1.000,00.");
-    if (!idhLongevidade.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) 
-        erros.add("O campo 'IDH Longevidade' deve conter apenas números no formato 1.000,00.");
+        }
+        if (pibTotal.isEmpty()) {
+            erros.add("O campo 'PIB Total' é obrigatório.");
+        } else {
+            try {
+                double pibTotalDouble = Double.parseDouble(pibTotal.replace(".", "").replace(",", "."));
+                double limitePib = 1200000.00; // Limite máximo de PIB Total
+                if (pibTotalDouble > limitePib) {
+                    erros.add("O campo 'PIB Total' deve ser no máximo R$ 1.200.000,00.");
+                }
+            } catch (NumberFormatException e) {
+                erros.add("O campo 'PIB Total' deve conter apenas números.");
+            }
 
-    return erros;
-}
+        }
+        if (idh.isEmpty()) {
+            erros.add("O campo 'IDH' é obrigatório.");
+        } else {
+            // Verificar se o IDH é um número válido e está dentro do limite
+            try {
+                double idhDouble = Double.parseDouble(idh.replace(".", "").replace(",", "."));
+                if (idhDouble < 0 || idhDouble > 1) {
+                    erros.add("O campo 'IDH' deve ser um número entre 0 e 1.");
+                }
+            } catch (NumberFormatException e) {
+                erros.add("O campo 'IDH' deve conter apenas números.");
+            }
+        }
+        if (rendaMedia.isEmpty()) {
+            erros.add("O campo 'Renda Média' é obrigatório.");
+        } else {
+            // Verificar se a Renda Média é um número válido e está dentro do limite
+            try {
+                double rendaMediaDouble = Double.parseDouble(rendaMedia.replace(".", "").replace(",", "."));
+                double limiteRendaMedia = 6840.00; // Limite máximo da Renda Média (20% a mais que 5700.00)
+                if (rendaMediaDouble > limiteRendaMedia) {
+                    erros.add("O campo 'Renda Média' deve ser no máximo R$ 6.840,00.");
+                }
+                if (rendaMediaDouble < 0) {
+                    erros.add("O campo 'Renda Média' não pode ser negativo.");
+                }
+            } catch (NumberFormatException e) {
+                erros.add("O campo 'Renda Média' deve conter apenas números.");
+            }
+        }
+        if (rendaNominal.isEmpty()) {
+            erros.add("O campo 'Renda Nominal' é obrigatório.");
+        } else {
+            // Verificar se a Renda Nominal é um número válido e está dentro do limite
+            try {
+                double rendaNominalDouble = Double.parseDouble(rendaNominal.replace(".", "").replace(",", "."));
+                double limiteRendaNominal = 108960000.00; // 90.800.000,00 + 20%
+                if (rendaNominalDouble > limiteRendaNominal) {
+                    erros.add("O campo 'Renda Nominal' deve ser no máximo R$ 108.960.000,00.");
+                }
+                if (rendaNominalDouble < 0) {
+                    erros.add("O campo 'Renda Nominal' deve ser no mínimo R$ 0,00.");
+                }
+            } catch (NumberFormatException e) {
+                erros.add("O campo 'Renda Nominal' deve conter apenas números.");
+            }
+        }
+        if (peaDia.isEmpty()) {
+            erros.add("O campo 'PEA Dia' é obrigatório.");
+        } else {
+            try {
+                double peaDiaDouble = Double.parseDouble(peaDia.replace(".", "").replace(",", "."));
+                double maxPeaDia = 80000 * 1.2; // 20% a mais de 80.000,00
+                if (peaDiaDouble > maxPeaDia) {
+                    erros.add("O campo 'PEA Dia' deve ser no máximo 20% a mais de 80.000,00.");
+                }
+            } catch (NumberFormatException e) {
+                erros.add("O campo 'PEA Dia' deve conter apenas números.");
+            }
+        }
+        if (idhEducacao.isEmpty()) {
+            erros.add("O campo 'IDH Educação' é obrigatório.");
+        } else {
+            try {
+                double idhEducacaoDouble = Double.parseDouble(idhEducacao.replace(".", "").replace(",", "."));
+                if (idhEducacaoDouble < 0 || idhEducacaoDouble > 1) {
+                    erros.add("O campo 'IDH Educação' deve ser um número entre 0 e 1.");
+                }
+            } catch (NumberFormatException e) {
+                erros.add("O campo 'IDH Educação' deve conter apenas números.");
+            }
+        }
+        if (idhLongevidade.isEmpty()) {
+            erros.add("O campo 'IDH Longevidade' é obrigatório.");
+        } else {
+            try {
+                double idhLongevidadeDouble = Double.parseDouble(idhLongevidade.replace(".", "").replace(",", "."));
+                if (idhLongevidadeDouble < 0 || idhLongevidadeDouble > 1) {
+                    erros.add("O campo 'IDH Longevidade' deve ser um número entre 0 e 1.");
+                }
+            } catch (NumberFormatException e) {
+                erros.add("O campo 'IDH Longevidade' deve conter apenas números.");
+            }
+        }
 
-private void atualizarRegistro(String populacao, String domicilios, String pibTotal, String idh,
-                               String rendaMedia, String rendaNominal, String peaDia,
-                               String idhEducacao, String idhLongevidade) {
-    List<String> erros = validarCampos(populacao, domicilios, pibTotal, idh, rendaMedia, rendaNominal, peaDia, idhEducacao, idhLongevidade);
-    if (!erros.isEmpty()) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erro de Validação");
-        alert.setHeaderText("Por favor, corrija os seguintes erros:");
-        alert.setContentText(String.join("\n", erros));
-        alert.showAndWait();
-        return;
+        // Verificar se campos numéricos contêm apenas números, pontos e vírgulas
+        if (!populacao.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) {
+            erros.add("O campo 'População' deve conter apenas números no formato 1.000,00.");
+        }
+        if (!domicilios.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,})?")) {
+            erros.add("O campo 'Domicílios' deve conter apenas números no formato 1.000,00.");
+        }
+        if (!pibTotal.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) {
+            erros.add("O campo 'PIB Total' deve conter apenas números no formato 1.000,00.");
+        }
+        if (!rendaMedia.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) {
+            erros.add("O campo 'Renda Média' deve conter apenas números no formato 1.000,00.");
+        }
+        if (!rendaNominal.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) {
+            erros.add("O campo 'Renda Nominal' deve conter apenas números no formato 1.000,00.");
+        }
+        if (!peaDia.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) {
+            erros.add("O campo 'PEA Dia' deve conter apenas números no formato 1.000,00.");
+        }
+        if (!idh.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) {
+            erros.add("O campo 'IDH' deve conter apenas números no formato Ex:(1.000,00).");
+        }
+        if (!idhEducacao.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) {
+            erros.add("O campo 'IDH Educação' deve conter apenas números no formato 1.000,00.");
+        }
+        if (!idhLongevidade.matches("\\d{1,3}(\\.\\d{3})*(,\\d{1,5})?")) {
+            erros.add("O campo 'IDH Longevidade' deve conter apenas números no formato 1.000,00.");
+        }
+
+        return erros;
     }
 
-    if (municipioSelecionado != null) {
+    private void atualizarRegistro(String populacao, String domicilios, String pibTotal, String idh,
+            String rendaMedia, String rendaNominal, String peaDia,
+            String idhEducacao, String idhLongevidade) {
+
+        if (municipioSelecionado == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Aviso");
+            alert.setHeaderText("Nenhum Município Selecionado");
+            alert.setContentText("Por favor, selecione um município antes de tentar atualizar.");
+            alert.showAndWait();
+            return;
+        }
+
+        List<String> erros = validarCampos(populacao, domicilios, pibTotal, idh, rendaMedia, rendaNominal, peaDia, idhEducacao, idhLongevidade);
+        if (!erros.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erro de Validação");
+            alert.setHeaderText("Por favor, corrija os seguintes erros:");
+            alert.setContentText(String.join("\n", erros));
+            alert.showAndWait();
+            return;
+        }
+
         municipioSelecionado.setPopulacao(populacao);
         municipioSelecionado.setDomicilios(domicilios);
         municipioSelecionado.setPibTotal(pibTotal);
@@ -230,10 +363,5 @@ private void atualizarRegistro(String populacao, String domicilios, String pibTo
 
         // Atualiza a exibição dos detalhes do município na interface
         exibirDetalhesMunicipio();
-    }
-}
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }

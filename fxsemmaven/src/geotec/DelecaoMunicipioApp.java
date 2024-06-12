@@ -21,6 +21,7 @@ package geotec;
  * @author Gabriel Gomes Rodrigues Cheim <gabrielgrcheim2@gmail.com>
  */
 import entities.Municipio;
+import static entities.Municipio.limparMunicipio;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
@@ -54,6 +55,7 @@ public class DelecaoMunicipioApp extends Application {
         cmbMunicipios.setOnAction(e -> {
             String selectedMunicipioName = cmbMunicipios.getSelectionModel().getSelectedItem();
             municipioSelecionado = municipios.stream().filter(m -> m.getNome().equals(selectedMunicipioName)).findFirst().orElse(null);
+            System.out.println("Município selecionado: " + (municipioSelecionado != null ? municipioSelecionado.getNome() : "nenhum"));
         });
 
         Button btnSim = new Button("Sim");
@@ -82,7 +84,7 @@ public class DelecaoMunicipioApp extends Application {
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Confirmar Deleção");
         confirmAlert.setHeaderText(null);
-        confirmAlert.setContentText("Tem certeza que deseja deletar o município " + municipioSelecionado.getNome() + "?");
+        confirmAlert.setContentText("Tem certeza que deseja deletar as informações do município " + municipioSelecionado.getNome() + "?");
 
         ButtonType buttonTypeSim = new ButtonType("Sim");
         ButtonType buttonTypeNao = new ButtonType("Não");
@@ -90,13 +92,9 @@ public class DelecaoMunicipioApp extends Application {
 
         confirmAlert.showAndWait().ifPresent(response -> {
             if (response == buttonTypeSim) {
-                Municipio.removerMunicipio(municipios, municipioSelecionado);
+                limparMunicipio(municipioSelecionado);
                 primaryStage.close();
             }
         });
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }

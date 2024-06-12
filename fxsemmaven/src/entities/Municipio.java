@@ -14,13 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package entities;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * 
+ *
  * @author Gabriel Gomes Rodrigues Cheim <gabrielgrcheim2@gmail.com>
  * @date 09/06/2024
  * @brief Class Municipio
@@ -177,8 +178,7 @@ public class Municipio {
 
     public static double converter(String valor) {
         String valorSemFormato = valor.replace(".", "").replace(",", ".");
-        double valorConvertido = Double.parseDouble(valorSemFormato);
-        return valorConvertido;
+        return Double.parseDouble(valorSemFormato);
     }
 
     public double calcularDensidadeDemografica() {
@@ -200,12 +200,35 @@ public class Municipio {
     }
 
     public String classificarIDH() {
-        double idhNumerico = converter(idh);
-        if (idhNumerico > 0.80) {
+        if (idh == null) {
+            return null;
+        } else {
+            return classificarValor(converter(idh));
+        }
+    }
+
+    public String classificarIDHLongevidade() {
+        if (idh == null) {
+            return null;
+        } else {
+            return classificarValor(converter(idhLongevidade));
+        }
+    }
+
+    public String classificarIDHEducacao() {
+        if (idh == null) {
+            return null;
+        } else {
+            return classificarValor(converter(idhEducacao));
+        }
+    }
+
+    private String classificarValor(double valor) {
+        if (valor > 0.80) {
             return "Muito alto";
-        } else if (idhNumerico >= 0.70 && idhNumerico <= 0.80) {
+        } else if (valor >= 0.70) {
             return "Alto";
-        } else if (idhNumerico >= 0.55 && idhNumerico < 0.70) {
+        } else if (valor >= 0.55) {
             return "Médio";
         } else {
             return "Baixo";
@@ -216,8 +239,26 @@ public class Municipio {
         String valorString = String.format("%.5f", valor);
         return valorString;
     }
-    
-    public static void removerMunicipio(List<Municipio> municipios, Municipio municipioSelecionado) {
-        municipios.removeIf(municipio -> municipio.getNome().equals(municipioSelecionado.getNome()));
+
+    public static void limparMunicipio(Municipio municipioSelecionado) {
+        System.out.println("Iniciando a limpeza do município: " + municipioSelecionado.getNome());
+
+        municipioSelecionado.setPopulacao(null);
+        municipioSelecionado.setDomicilios(null);
+        municipioSelecionado.setPibTotal(null);
+        municipioSelecionado.setIdh(null);
+        municipioSelecionado.setRendaMedia(null);
+        municipioSelecionado.setRendaNominal(null);
+        municipioSelecionado.setPeaDia(null);
+        municipioSelecionado.setIdhEducacao(null);
+        municipioSelecionado.setIdhLongevidade(null);
+
+        LocalDateTime dataAtualizacao = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String dataFormatada = dataAtualizacao.format(formatter);
+        municipioSelecionado.setDataUltimaAtualizacao(dataFormatada);
+        // Apagando classificações do IDH
+        // Você pode adicionar mais lógicas aqui se houver mais propriedades relacionadas à classificação de IDH
+        System.out.println("Município limpo: " + municipioSelecionado.getNome());
     }
 }

@@ -23,18 +23,20 @@ package geotec;
 import entities.CSVUtils;
 import entities.Municipio;
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
+import javafx.stage.FileChooser;
+import java.io.File;
+import java.text.Normalizer;
 import java.util.List;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 public class Geotec extends Application {
 
@@ -54,6 +56,7 @@ public class Geotec extends Application {
         tableView = new TableView<>();
         municipios = FXCollections.observableArrayList();
 
+        // Configuração das colunas da tabela
         TableColumn<Municipio, String> colCodigoIBGE = new TableColumn<>("Código IBGE");
         colCodigoIBGE.setCellValueFactory(new PropertyValueFactory<>("codigoIBGE"));
 
@@ -81,9 +84,6 @@ public class Geotec extends Application {
         TableColumn<Municipio, String> colPibTotal = new TableColumn<>("PIB Total (R$ mil)");
         colPibTotal.setCellValueFactory(new PropertyValueFactory<>("pibTotal"));
 
-        TableColumn<Municipio, String> colIdh = new TableColumn<>("IDH");
-        colIdh.setCellValueFactory(new PropertyValueFactory<>("idh"));
-
         TableColumn<Municipio, String> colRendaMedia = new TableColumn<>("Renda Média");
         colRendaMedia.setCellValueFactory(new PropertyValueFactory<>("rendaMedia"));
 
@@ -99,68 +99,124 @@ public class Geotec extends Application {
         TableColumn<Municipio, String> colIdhLongevidade = new TableColumn<>("IDH Longevidade");
         colIdhLongevidade.setCellValueFactory(new PropertyValueFactory<>("idhLongevidade"));
 
-        tableView.getColumns().addAll(colCodigoIBGE, colNome, colMicrorregiao, colEstado, colRegiaoGeografica, colAreaKm2, colPopulacao, colDomicilios, colPibTotal, colIdh, colRendaMedia, colRendaNominal, colPeaDia, colIdhEducacao, colIdhLongevidade);
+        TableColumn<Municipio, String> colIdh = new TableColumn<>("IDH");
+        colIdh.setCellValueFactory(new PropertyValueFactory<>("idh"));
 
-        Button btnCarregar = new Button("Carregar Dados");
-        btnCarregar.setOnAction(e -> carregarDados());
+        TableColumn<Municipio, String> colClassificacaoIDH = new TableColumn<>("C IDH");
+        colClassificacaoIDH.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().classificarIDH()));
 
+        TableColumn<Municipio, String> colClassificacaoIDHLongevidade = new TableColumn<>("C IDH Longevidade");
+        colClassificacaoIDHLongevidade.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().classificarIDHLongevidade()));
+
+        TableColumn<Municipio, String> colClassificacaoIDHEducacao = new TableColumn<>("C IDH Educação");
+        colClassificacaoIDHEducacao.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().classificarIDHEducacao()));
+
+        TableColumn<Municipio, String> colDataUltimaAtualizacao = new TableColumn<>("Data Última Atualização");
+        colDataUltimaAtualizacao.setCellValueFactory(new PropertyValueFactory<>("dataUltimaAtualizacao"));
+
+        tableView.getColumns().addAll(
+                colCodigoIBGE, colNome, colMicrorregiao, colEstado, colRegiaoGeografica,
+                colAreaKm2, colPopulacao, colDomicilios, colPibTotal, colIdh, colRendaMedia,
+                colRendaNominal, colPeaDia, colIdhEducacao, colIdhLongevidade,
+                colClassificacaoIDH, colClassificacaoIDHLongevidade, colClassificacaoIDHEducacao,
+                colDataUltimaAtualizacao
+        );
+
+        // Botão Importar Dados
+        Button btnImportar = new Button("Importar");
+        btnImportar.setOnAction(e -> importarDados(primaryStage));
+
+        // Botão Exportar Dados
+        Button btnExportar = new Button("Exportar");
+        btnExportar.setOnAction(e -> exportarDados(primaryStage));
+
+        // Campo de Busca
         txtBusca = new TextField();
         txtBusca.setPromptText("Digite o nome ou código IBGE do município");
 
-        txtBusca.textProperty().addListener(new ChangeListener<String>() {
-    @Override
-    public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-        // Defina os caracteres proibidos em uma expressão regular
-        String caracteresProibidos = "[#@!$%&*()¨;:<>|/?+_-]";
+        txtBusca.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Defina os caracteres proibidos em uma expressão regular
+            String caracteresProibidos = "[#@!$%&*()¨;:<>|/?+_-]";
         
-        // Verifique se o novo valor contém qualquer um dos caracteres proibidos
-        if (newValue.matches(".*" + caracteresProibidos + ".*")) {
-            txtBusca.setText(oldValue);
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Entrada Inválida");
-            alert.setHeaderText(null);
-            alert.setContentText("Caracteres proibidos: #, @, !, $, %, &, *, ( , ) , < , > , | , ? , = , + , - e _   não são permitidos.");
-            alert.showAndWait();
-        }
-    }
-});
+            // Verifique se o novo valor contém qualquer um dos caracteres proibidos
+            if (newValue.matches(".*" + caracteresProibidos + ".*")) {
+                txtBusca.setText(oldValue);
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Entrada Inválida");
+                alert.setHeaderText(null);
+                alert.setContentText("Caracteres proibidos: #, @, !, $, %, &, *, ( , ) , < , > , | , ? , = , + , - e _   não são permitidos.");
+                alert.showAndWait();
+            }
+        });
 
+        // Botão Buscar
         Button btnBuscar = new Button("Buscar");
         btnBuscar.setOnAction(e -> buscarMunicipio());
 
+        // Botão Atualizar Tabela
         Button btnAtualizarTabela = new Button("Atualizar");
-        btnAtualizarTabela.setOnAction(e -> carregarDados()); // Chama o método carregarDados para atualizar a tabela
+        btnAtualizarTabela.setOnAction(e -> tableView.refresh());
 
+        // Botão Atualizar Registro
         Button btnAtualizar = new Button("Atualizar Registro");
         btnAtualizar.setOnAction(e -> abrirInterfaceAtualizacao(primaryStage));
 
+        // Botão Deletar
         Button btnDeletar = new Button("Deletar");
         btnDeletar.setOnAction(e -> abrirInterfaceDelecao(primaryStage));
 
-        HBox hBoxBusca = new HBox(txtBusca, btnBuscar);
+        // Layout da barra de busca e botões
+        HBox hBoxBusca = new HBox(txtBusca, btnBuscar, btnAtualizarTabela, btnAtualizar, btnDeletar);
         hBoxBusca.setSpacing(10);
 
-        VBox vbox = new VBox(btnCarregar, hBoxBusca, tableView, btnAtualizarTabela, btnAtualizar, btnDeletar); // Adiciona o botão Deletar na interface
+        // Botões Importar e Exportar à direita
+        HBox hBoxTop = new HBox(hBoxBusca, btnImportar, btnExportar);
+        hBoxTop.setSpacing(10);
+        HBox.setHgrow(hBoxBusca, Priority.ALWAYS);
+
+        // Configuração da tela principal
+        VBox vbox = new VBox(hBoxTop, tableView);
+        VBox.setVgrow(tableView, Priority.ALWAYS);
         vbox.setSpacing(10);
 
-        Scene scene = new Scene(vbox, 1000, 600);
+        Scene scene = new Scene(vbox, 1000, 800);
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
         primaryStage.show();
+
+        // Expande as colunas para preencher a tabela
+        for (TableColumn<?, ?> column : tableView.getColumns()) {
+            column.prefWidthProperty().bind(tableView.widthProperty().multiply(1.0 / tableView.getColumns().size()));
+        }
     }
 
-    private void carregarDados() {
-        List<Municipio> lista = CSVUtils.lerCSV("C:\\ProjetoIntegrador\\Entrada\\ArquivoT.csv");
-        municipios.setAll(lista);
-        tableView.setItems(municipios);
-        CSVUtils.escreverCSV(lista, "C:\\ProjetoIntegrador\\Saida\\ArquivoTatt.csv");
+    private void importarDados(Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        if (selectedFile != null) {
+            List<Municipio> lista = CSVUtils.lerCSV(selectedFile.getAbsolutePath());
+            municipios.setAll(lista);
+            tableView.setItems(municipios);
+        }
+    }
+
+    private void exportarDados(Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        File selectedFile = fileChooser.showSaveDialog(stage);
+        if (selectedFile != null) {
+            CSVUtils.escreverCSV(municipios, selectedFile.getAbsolutePath());
+        }
     }
 
     private void buscarMunicipio() {
-        String busca = txtBusca.getText().toLowerCase();
+        String busca = removerAcentos(txtBusca.getText().trim().toLowerCase());
         ObservableList<Municipio> resultadoBusca = FXCollections.observableArrayList();
 
         for (Municipio municipio : municipios) {
-            if (municipio.getNome().toLowerCase().contains(busca) || municipio.getCodigoIBGE().toLowerCase().contains(busca)) {
+            if (removerAcentos(municipio.getNome().toLowerCase()).contains(busca) ||
+                removerAcentos(municipio.getCodigoIBGE().toLowerCase()).contains(busca)) {
                 resultadoBusca.add(municipio);
             }
         }
@@ -180,6 +236,10 @@ public class Geotec extends Application {
         DelecaoMunicipioApp delecaoApp = new DelecaoMunicipioApp(municipios);
         delecaoApp.start(delecaoStage);
         delecaoStage.show();
+    }
+
+    private String removerAcentos(String str) {
+        return Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
     }
 
     public static void main(String[] args) {

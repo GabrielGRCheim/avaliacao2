@@ -79,8 +79,4 @@ public class LoginApp extends Application {
         loginStage.setScene(scene);
         loginStage.show();
     }
-
-    public static void main(String[] args) {
-        launch(args);
-    }
 }
