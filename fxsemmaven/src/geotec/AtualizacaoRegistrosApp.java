@@ -183,8 +183,8 @@ public class AtualizacaoRegistrosApp extends Application {
             // Verificar se o número de domicílios é um número válido e está dentro do limite
             try {
                 double domiciliosDouble = Double.parseDouble(domicilios.replace(".", "").replace(",", "."));
-                if (domiciliosDouble <= 0 || domiciliosDouble > 12000) {
-                    erros.add("O campo 'Domicílios' deve ser um número entre 1 e 12.000.");
+                if (domiciliosDouble <= 0 || domiciliosDouble > 540000) {
+                    erros.add("O campo 'Domicílios' deve ser um número entre 1 e 540.000.");
                 }
             } catch (NumberFormatException e) {
                 erros.add("O campo 'Domicílios' deve conter apenas números.");
@@ -196,9 +196,9 @@ public class AtualizacaoRegistrosApp extends Application {
         } else {
             try {
                 double pibTotalDouble = Double.parseDouble(pibTotal.replace(".", "").replace(",", "."));
-                double limitePib = 1200000.00; // Limite máximo de PIB Total
+                double limitePib = 60200000.00; // Limite máximo de PIB Total
                 if (pibTotalDouble > limitePib) {
-                    erros.add("O campo 'PIB Total' deve ser no máximo R$ 1.200.000,00.");
+                    erros.add("O campo 'PIB Total' deve ser no máximo R$ 60.200.000,00.");
                 }
             } catch (NumberFormatException e) {
                 erros.add("O campo 'PIB Total' deve conter apenas números.");
@@ -241,9 +241,9 @@ public class AtualizacaoRegistrosApp extends Application {
             // Verificar se a Renda Nominal é um número válido e está dentro do limite
             try {
                 double rendaNominalDouble = Double.parseDouble(rendaNominal.replace(".", "").replace(",", "."));
-                double limiteRendaNominal = 108960000.00; // 90.800.000,00 + 20%
+                double limiteRendaNominal = 4108960000.00;
                 if (rendaNominalDouble > limiteRendaNominal) {
-                    erros.add("O campo 'Renda Nominal' deve ser no máximo R$ 108.960.000,00.");
+                    erros.add("O campo 'Renda Nominal' deve ser no máximo R$ 4.108.960.000,00.");
                 }
                 if (rendaNominalDouble < 0) {
                     erros.add("O campo 'Renda Nominal' deve ser no mínimo R$ 0,00.");
@@ -257,9 +257,12 @@ public class AtualizacaoRegistrosApp extends Application {
         } else {
             try {
                 double peaDiaDouble = Double.parseDouble(peaDia.replace(".", "").replace(",", "."));
-                double maxPeaDia = 80000 * 1.2; // 20% a mais de 80.000,00
+                double maxPeaDia = 2000000; // 20% a mais de 80.000,00
                 if (peaDiaDouble > maxPeaDia) {
-                    erros.add("O campo 'PEA Dia' deve ser no máximo 20% a mais de 80.000,00.");
+                    erros.add("O campo 'PEA Dia' deve ser no máximo 2.000.000.");
+                }
+                if (peaDiaDouble < 0) {
+                    erros.add("O campo 'PEA Dia' deve ser no mínimo R$ 0,00.");
                 }
             } catch (NumberFormatException e) {
                 erros.add("O campo 'PEA Dia' deve conter apenas números.");

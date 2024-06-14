@@ -23,20 +23,25 @@ package geotec;
 import entities.CSVUtils;
 import entities.Municipio;
 import javafx.application.Application;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
 import java.io.File;
 import java.text.Normalizer;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class Geotec extends Application {
 
@@ -59,60 +64,95 @@ public class Geotec extends Application {
         // Configuração das colunas da tabela
         TableColumn<Municipio, String> colCodigoIBGE = new TableColumn<>("Código IBGE");
         colCodigoIBGE.setCellValueFactory(new PropertyValueFactory<>("codigoIBGE"));
+        colCodigoIBGE.setSortable(true);
 
         TableColumn<Municipio, String> colNome = new TableColumn<>("Município");
         colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        colNome.setSortable(true);
 
         TableColumn<Municipio, String> colMicrorregiao = new TableColumn<>("Microrregião");
         colMicrorregiao.setCellValueFactory(new PropertyValueFactory<>("microRegiao"));
+        colMicrorregiao.setSortable(true);
 
         TableColumn<Municipio, String> colEstado = new TableColumn<>("Estado");
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
+        colEstado.setSortable(true);
 
         TableColumn<Municipio, String> colRegiaoGeografica = new TableColumn<>("Região Geográfica");
         colRegiaoGeografica.setCellValueFactory(new PropertyValueFactory<>("regiaoGeografica"));
+        colRegiaoGeografica.setSortable(true);
 
-        TableColumn<Municipio, String> colAreaKm2 = new TableColumn<>("Área km²");
-        colAreaKm2.setCellValueFactory(new PropertyValueFactory<>("areaKm"));
+        // Configurar a formatação de valores para Locale Brasileiro
+        Locale localeBR = new Locale("pt", "BR");
+        NumberFormat numeroBR = NumberFormat.getNumberInstance(localeBR);
+        numeroBR.setMinimumFractionDigits(2);
+        numeroBR.setMaximumFractionDigits(2);
 
-        TableColumn<Municipio, String> colPopulacao = new TableColumn<>("População");
-        colPopulacao.setCellValueFactory(new PropertyValueFactory<>("populacao"));
+        TableColumn<Municipio, Double> colAreaKm2 = new TableColumn<>("Área km²");
+        colAreaKm2.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getAreaKm())).asObject());
+        colAreaKm2.setSortable(true);
+        colAreaKm2.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
 
-        TableColumn<Municipio, String> colDomicilios = new TableColumn<>("Domicílios");
-        colDomicilios.setCellValueFactory(new PropertyValueFactory<>("domicilios"));
+        TableColumn<Municipio, Double> colPopulacao = new TableColumn<>("População");
+        colPopulacao.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getPopulacao())).asObject());
+        colPopulacao.setSortable(true);
+        colPopulacao.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
 
-        TableColumn<Municipio, String> colPibTotal = new TableColumn<>("PIB Total (R$ mil)");
-        colPibTotal.setCellValueFactory(new PropertyValueFactory<>("pibTotal"));
+        TableColumn<Municipio, Double> colDomicilios = new TableColumn<>("Domicílios");
+        colDomicilios.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getDomicilios())).asObject());
+        colDomicilios.setSortable(true);
+        colDomicilios.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
 
-        TableColumn<Municipio, String> colRendaMedia = new TableColumn<>("Renda Média");
-        colRendaMedia.setCellValueFactory(new PropertyValueFactory<>("rendaMedia"));
+        TableColumn<Municipio, Double> colPibTotal = new TableColumn<>("PIB Total (R$ mil)");
+        colPibTotal.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getPibTotal())).asObject());
+        colPibTotal.setSortable(true);
+        colPibTotal.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
 
-        TableColumn<Municipio, String> colRendaNominal = new TableColumn<>("Renda Nominal");
-        colRendaNominal.setCellValueFactory(new PropertyValueFactory<>("rendaNominal"));
+        TableColumn<Municipio, Double> colRendaMedia = new TableColumn<>("Renda Média");
+        colRendaMedia.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getRendaMedia())).asObject());
+        colRendaMedia.setSortable(true);
+        colRendaMedia.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
 
-        TableColumn<Municipio, String> colPeaDia = new TableColumn<>("PEA Dia");
-        colPeaDia.setCellValueFactory(new PropertyValueFactory<>("peaDia"));
+        TableColumn<Municipio, Double> colRendaNominal = new TableColumn<>("Renda Nominal");
+        colRendaNominal.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getRendaNominal())).asObject());
+        colRendaNominal.setSortable(true);
+        colRendaNominal.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
 
-        TableColumn<Municipio, String> colIdhEducacao = new TableColumn<>("IDH Educação");
-        colIdhEducacao.setCellValueFactory(new PropertyValueFactory<>("idhEducacao"));
+        TableColumn<Municipio, Double> colPeaDia = new TableColumn<>("PEA Dia");
+        colPeaDia.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getPeaDia())).asObject());
+        colPeaDia.setSortable(true);
+        colPeaDia.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
 
-        TableColumn<Municipio, String> colIdhLongevidade = new TableColumn<>("IDH Longevidade");
-        colIdhLongevidade.setCellValueFactory(new PropertyValueFactory<>("idhLongevidade"));
+        TableColumn<Municipio, Double> colIdhEducacao = new TableColumn<>("IDH Educação");
+        colIdhEducacao.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getIdhEducacao())).asObject());
+        colIdhEducacao.setSortable(true);
+        colIdhEducacao.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
 
-        TableColumn<Municipio, String> colIdh = new TableColumn<>("IDH");
-        colIdh.setCellValueFactory(new PropertyValueFactory<>("idh"));
+        TableColumn<Municipio, Double> colIdhLongevidade = new TableColumn<>("IDH Longevidade");
+        colIdhLongevidade.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getIdhLongevidade())).asObject());
+        colIdhLongevidade.setSortable(true);
+        colIdhLongevidade.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
+
+        TableColumn<Municipio, Double> colIdh = new TableColumn<>("IDH");
+        colIdh.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getIdh())).asObject());
+        colIdh.setSortable(true);
+        colIdh.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
 
         TableColumn<Municipio, String> colClassificacaoIDH = new TableColumn<>("C IDH");
         colClassificacaoIDH.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().classificarIDH()));
+        colClassificacaoIDH.setSortable(true);
 
         TableColumn<Municipio, String> colClassificacaoIDHLongevidade = new TableColumn<>("C IDH Longevidade");
         colClassificacaoIDHLongevidade.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().classificarIDHLongevidade()));
+        colClassificacaoIDHLongevidade.setSortable(true);
 
         TableColumn<Municipio, String> colClassificacaoIDHEducacao = new TableColumn<>("C IDH Educação");
         colClassificacaoIDHEducacao.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().classificarIDHEducacao()));
+        colClassificacaoIDHEducacao.setSortable(true);
 
         TableColumn<Municipio, String> colDataUltimaAtualizacao = new TableColumn<>("Data Última Atualização");
         colDataUltimaAtualizacao.setCellValueFactory(new PropertyValueFactory<>("dataUltimaAtualizacao"));
+        colDataUltimaAtualizacao.setSortable(true);
 
         tableView.getColumns().addAll(
                 colCodigoIBGE, colNome, colMicrorregiao, colEstado, colRegiaoGeografica,
@@ -121,6 +161,11 @@ public class Geotec extends Application {
                 colClassificacaoIDH, colClassificacaoIDHLongevidade, colClassificacaoIDHEducacao,
                 colDataUltimaAtualizacao
         );
+
+        // Configurar a ordenação para a tabela
+        SortedList<Municipio> sortedData = new SortedList<>(municipios);
+        sortedData.comparatorProperty().bind(tableView.comparatorProperty());
+        tableView.setItems(sortedData);
 
         // Botão Importar Dados
         Button btnImportar = new Button("Importar");
@@ -137,7 +182,7 @@ public class Geotec extends Application {
         txtBusca.textProperty().addListener((observable, oldValue, newValue) -> {
             // Defina os caracteres proibidos em uma expressão regular
             String caracteresProibidos = "[#@!$%&*()¨;:<>|/?+_-]";
-        
+
             // Verifique se o novo valor contém qualquer um dos caracteres proibidos
             if (newValue.matches(".*" + caracteresProibidos + ".*")) {
                 txtBusca.setText(oldValue);
@@ -215,8 +260,8 @@ public class Geotec extends Application {
         ObservableList<Municipio> resultadoBusca = FXCollections.observableArrayList();
 
         for (Municipio municipio : municipios) {
-            if (removerAcentos(municipio.getNome().toLowerCase()).contains(busca) ||
-                removerAcentos(municipio.getCodigoIBGE().toLowerCase()).contains(busca)) {
+            if (removerAcentos(municipio.getNome().toLowerCase()).contains(busca)
+                    || removerAcentos(municipio.getCodigoIBGE().toLowerCase()).contains(busca)) {
                 resultadoBusca.add(municipio);
             }
         }
@@ -242,7 +287,21 @@ public class Geotec extends Application {
         return Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
     }
 
+    private double parseDouble(String value) {
+        if (value == null || value.isEmpty()) {
+            return 0.0;
+        }
+        try {
+            // Remove pontos de separação de milhar e substitui vírgula por ponto decimal
+            return Double.parseDouble(value.replace(".", "").replace(",", "."));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return 0.0;
+        }
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
 }
+
