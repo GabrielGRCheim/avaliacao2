@@ -42,6 +42,9 @@ import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
+import javafx.util.Callback;
+import javafx.util.StringConverter;
+import javafx.util.converter.NumberStringConverter;
 
 public class Geotec extends Application {
 
@@ -60,6 +63,26 @@ public class Geotec extends Application {
 
         tableView = new TableView<>();
         municipios = FXCollections.observableArrayList();
+
+        // Configurar a formatação de valores para Locale Brasileiro
+        Locale localeBR = new Locale("pt", "BR");
+        NumberFormat numeroBR = NumberFormat.getNumberInstance(localeBR);
+        numeroBR.setMinimumFractionDigits(2);
+        numeroBR.setMaximumFractionDigits(2);
+
+        StringConverter<Number> converter = new NumberStringConverter(numeroBR);
+
+        Callback<TableColumn<Municipio, Double>, TableCell<Municipio, Double>> cellFactory = column -> new TableCell<Municipio, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null || item == 0.0) {
+                    setText(null);
+                } else {
+                    setText(converter.toString(item));
+                }
+            }
+        };
 
         // Configuração das colunas da tabela
         TableColumn<Municipio, String> colCodigoIBGE = new TableColumn<>("Código IBGE");
@@ -82,61 +105,94 @@ public class Geotec extends Application {
         colRegiaoGeografica.setCellValueFactory(new PropertyValueFactory<>("regiaoGeografica"));
         colRegiaoGeografica.setSortable(true);
 
-        // Configurar a formatação de valores para Locale Brasileiro
-        Locale localeBR = new Locale("pt", "BR");
-        NumberFormat numeroBR = NumberFormat.getNumberInstance(localeBR);
-        numeroBR.setMinimumFractionDigits(2);
-        numeroBR.setMaximumFractionDigits(2);
-
         TableColumn<Municipio, Double> colAreaKm2 = new TableColumn<>("Área km²");
-        colAreaKm2.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getAreaKm())).asObject());
+        colAreaKm2.setCellValueFactory(cellData -> {
+            Double value = parseDouble(cellData.getValue().getAreaKm());
+            return value != 0.0 ? new SimpleDoubleProperty(value).asObject() : null;
+        });
         colAreaKm2.setSortable(true);
-        colAreaKm2.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
+        colAreaKm2.setCellFactory(cellFactory);
 
         TableColumn<Municipio, Double> colPopulacao = new TableColumn<>("População");
-        colPopulacao.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getPopulacao())).asObject());
+        colPopulacao.setCellValueFactory(cellData -> {
+            Double value = parseDouble(cellData.getValue().getPopulacao());
+            return value != 0.0 ? new SimpleDoubleProperty(value).asObject() : null;
+        });
         colPopulacao.setSortable(true);
-        colPopulacao.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
+        colPopulacao.setCellFactory(cellFactory);
 
+        // Repita o processo para as outras colunas...
         TableColumn<Municipio, Double> colDomicilios = new TableColumn<>("Domicílios");
-        colDomicilios.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getDomicilios())).asObject());
+        colDomicilios.setCellValueFactory(cellData -> {
+            Double value = parseDouble(cellData.getValue().getDomicilios());
+            return value != 0.0 ? new SimpleDoubleProperty(value).asObject() : null;
+        });
         colDomicilios.setSortable(true);
-        colDomicilios.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
+        colDomicilios.setCellFactory(cellFactory);
 
         TableColumn<Municipio, Double> colPibTotal = new TableColumn<>("PIB Total (R$ mil)");
-        colPibTotal.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getPibTotal())).asObject());
+        colPibTotal.setCellValueFactory(cellData -> {
+            Double value = parseDouble(cellData.getValue().getPibTotal());
+            return value != 0.0 ? new SimpleDoubleProperty(value).asObject() : null;
+        });
         colPibTotal.setSortable(true);
-        colPibTotal.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
+        colPibTotal.setCellFactory(cellFactory);
 
         TableColumn<Municipio, Double> colRendaMedia = new TableColumn<>("Renda Média");
-        colRendaMedia.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getRendaMedia())).asObject());
+        colRendaMedia.setCellValueFactory(cellData -> {
+            Double value = parseDouble(cellData.getValue().getRendaMedia());
+            return value != 0.0 ? new SimpleDoubleProperty(value).asObject() : null;
+        });
         colRendaMedia.setSortable(true);
-        colRendaMedia.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
+        colRendaMedia.setCellFactory(cellFactory);
 
         TableColumn<Municipio, Double> colRendaNominal = new TableColumn<>("Renda Nominal");
-        colRendaNominal.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getRendaNominal())).asObject());
+        colRendaNominal.setCellValueFactory(cellData -> {
+            Double value = parseDouble(cellData.getValue().getRendaNominal());
+            return value != 0.0 ? new SimpleDoubleProperty(value).asObject() : null;
+        });
         colRendaNominal.setSortable(true);
-        colRendaNominal.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
+        colRendaNominal.setCellFactory(cellFactory);
 
         TableColumn<Municipio, Double> colPeaDia = new TableColumn<>("PEA Dia");
-        colPeaDia.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getPeaDia())).asObject());
+        colPeaDia.setCellValueFactory(cellData -> {
+            Double value = parseDouble(cellData.getValue().getPeaDia());
+            return value != 0.0 ? new SimpleDoubleProperty(value).asObject() : null;
+        });
         colPeaDia.setSortable(true);
-        colPeaDia.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
+        colPeaDia.setCellFactory(cellFactory);
+
+        TableColumn<Municipio, Double> colPibPerCapita = new TableColumn<>("PIB per Capita");
+        colPibPerCapita.setCellValueFactory(cellData -> {
+            Double value = parseDouble(cellData.getValue().getPIBPerCapitaTotal());
+            return value != 0.0 ? new SimpleDoubleProperty(value).asObject() : null;
+        });
+        colPibPerCapita.setSortable(true);
+        colPibPerCapita.setCellFactory(cellFactory);
 
         TableColumn<Municipio, Double> colIdhEducacao = new TableColumn<>("IDH Educação");
-        colIdhEducacao.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getIdhEducacao())).asObject());
+        colIdhEducacao.setCellValueFactory(cellData -> {
+            Double value = parseDouble(cellData.getValue().getIdhEducacao());
+            return value != 0.0 ? new SimpleDoubleProperty(value).asObject() : null;
+        });
         colIdhEducacao.setSortable(true);
-        colIdhEducacao.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
+        colIdhEducacao.setCellFactory(cellFactory);
 
         TableColumn<Municipio, Double> colIdhLongevidade = new TableColumn<>("IDH Longevidade");
-        colIdhLongevidade.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getIdhLongevidade())).asObject());
+        colIdhLongevidade.setCellValueFactory(cellData -> {
+            Double value = parseDouble(cellData.getValue().getIdhLongevidade());
+            return value != 0.0 ? new SimpleDoubleProperty(value).asObject() : null;
+        });
         colIdhLongevidade.setSortable(true);
-        colIdhLongevidade.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
+        colIdhLongevidade.setCellFactory(cellFactory);
 
         TableColumn<Municipio, Double> colIdh = new TableColumn<>("IDH");
-        colIdh.setCellValueFactory(cellData -> new SimpleDoubleProperty(parseDouble(cellData.getValue().getIdh())).asObject());
+        colIdh.setCellValueFactory(cellData -> {
+            Double value = parseDouble(cellData.getValue().getIdh());
+            return value != 0.0 ? new SimpleDoubleProperty(value).asObject() : null;
+        });
         colIdh.setSortable(true);
-        colIdh.setCellFactory(new FormattedTableCellFactory<>(numeroBR));
+        colIdh.setCellFactory(cellFactory);
 
         TableColumn<Municipio, String> colClassificacaoIDH = new TableColumn<>("C IDH");
         colClassificacaoIDH.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().classificarIDH()));
@@ -150,16 +206,24 @@ public class Geotec extends Application {
         colClassificacaoIDHEducacao.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().classificarIDHEducacao()));
         colClassificacaoIDHEducacao.setSortable(true);
 
+        TableColumn<Municipio, Double> colDensidadeDemografica = new TableColumn<>("Densidade Demográfica");
+        colDensidadeDemografica.setCellValueFactory(cellData -> {
+            Double value = parseDouble(cellData.getValue().getDensidadeDemografica());
+            return value != 0.0 ? new SimpleDoubleProperty(value).asObject() : null;
+        });
+        colDensidadeDemografica.setSortable(true);
+        colDensidadeDemografica.setCellFactory(cellFactory);
+
         TableColumn<Municipio, String> colDataUltimaAtualizacao = new TableColumn<>("Data Última Atualização");
         colDataUltimaAtualizacao.setCellValueFactory(new PropertyValueFactory<>("dataUltimaAtualizacao"));
         colDataUltimaAtualizacao.setSortable(true);
 
         tableView.getColumns().addAll(
                 colCodigoIBGE, colNome, colMicrorregiao, colEstado, colRegiaoGeografica,
-                colAreaKm2, colPopulacao, colDomicilios, colPibTotal, colIdh, colRendaMedia,
-                colRendaNominal, colPeaDia, colIdhEducacao, colIdhLongevidade,
-                colClassificacaoIDH, colClassificacaoIDHLongevidade, colClassificacaoIDHEducacao,
-                colDataUltimaAtualizacao
+                colAreaKm2, colPopulacao, colDomicilios, colPibTotal, colRendaMedia,
+                colRendaNominal, colPeaDia, colPibPerCapita, colDensidadeDemografica,
+                colIdh, colClassificacaoIDH, colIdhLongevidade, colClassificacaoIDHLongevidade,
+                colIdhEducacao, colClassificacaoIDHEducacao, colDataUltimaAtualizacao
         );
 
         // Configurar a ordenação para a tabela
@@ -304,4 +368,3 @@ public class Geotec extends Application {
         launch(args);
     }
 }
-

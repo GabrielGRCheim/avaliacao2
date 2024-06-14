@@ -182,21 +182,45 @@ public class Municipio {
     }
 
     public double calcularDensidadeDemografica() {
-        double populacaoNumerica = converter(populacao);
-        double areaNumerica = converter(areaKm);
+        if (populacao == null) {
+            return 0.0;
+        } else {
+            double populacaoNumerica = converter(populacao);
+            double areaNumerica = converter(areaKm);
 
-        double densidadeDemografica = populacaoNumerica / areaNumerica;
+            double densidadeDemografica = populacaoNumerica / areaNumerica;
 
-        return densidadeDemografica;
+            return densidadeDemografica;
+        }
     }
 
-    public double calcularPIBPerCapitaTotal() {
-        double pibTotalNumerico = converter(pibTotal);
-        double populacaoNumerica = converter(populacao);
+    public String getDensidadeDemografica() {
+        if (getPibPerCapita() == 0.0) {
+            return null;
+        } else {
+            double desidadeDemografica = calcularDensidadeDemografica();
+            return converterParaString(desidadeDemografica);
+        }
+    }
 
-        double pibPerCapitaTotal = pibTotalNumerico / populacaoNumerica;
+    public double getPibPerCapita() {
+        if (pibTotal == null) {
+            return 0.0;
+        } else {
+            double pibTotalNumerico = converter(pibTotal);
+            double populacaoNumerica = converter(populacao);
 
-        return pibPerCapitaTotal;
+            return (pibTotalNumerico * 1000) / populacaoNumerica;
+        }
+    }
+
+    public String getPIBPerCapitaTotal() {
+        if (getPibPerCapita() == 0.0) {
+            return null;
+        } else {
+            double pibPerCapitaTotal = getPibPerCapita();
+            return converterParaString(pibPerCapitaTotal);
+        }
     }
 
     public String classificarIDH() {
